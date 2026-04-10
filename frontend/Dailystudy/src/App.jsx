@@ -1,7 +1,7 @@
-import Day05 from "./Day05";
+import Day06 from "./day06";
 
 function App() {
-  return <Day05 />;
+  return <Day06 />;
 }
 
 export default App;
