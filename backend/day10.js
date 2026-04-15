@@ -6,7 +6,8 @@ app.use(express.json());
 app.post("/outfit", (req, res) => {
     console.log(req.body); //
     const weather = req.body.weather;
-    const temp = req.body.temperature;
+    const temp = Number(req.body.temperature);
+
 
     let outfit = "";
 
