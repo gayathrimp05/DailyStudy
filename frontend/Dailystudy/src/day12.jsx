@@ -1,40 +1,71 @@
 import { useState } from "react";
 
-function Day11() {
+function Day12() {
+const [initial, setInitial] = useState("");
+const [balance, setBalance] = useState(0);
+
 const [text, setText] = useState("");
 const [amount, setAmount] = useState("");
 const [list, setList] = useState([]);
 
-function addTransaction() {
+function setInitialBalance() {
+if (!initial) return;
+setBalance(Number(initial));
+setInitial("");
+}
+
+function addExpense() {
 if (!text || !amount) return;
 
-const newItem = {
-text,
-amount: Number(amount),
-};
+const expense = Number(amount);
+
+if (expense > balance) {
+alert("Not enough balance!");
+return;
+}
+
+const newItem = { text, amount: expense };
 
 setList([...list, newItem]);
+setBalance(balance - expense);
+
 setText("");
 setAmount("");
 }
 
 function deleteItem(index) {
+const item = list[index];
+
 const newList = list.filter((_, i) => i !== index);
 setList(newList);
-}
 
-const balance = list.reduce((acc, item) => acc + item.amount, 0);
+// restore balance
+setBalance(balance + item.amount);
+}
 
 return (
 <div style={styles.container}>
 <div style={styles.card}>
-<h2>-- Expense Tracker ---</h2>
+<h2>-- Expense Tracker --</h2>
+
+{/* Initial Balance */}
+<div style={{ marginBottom: "10px" }}>
+<input
+placeholder="Enter total money"
+value={initial}
+onChange={(e) => setInitial(e.target.value)}
+style={styles.input}
+/>
+<button onClick={setInitialBalance} style={styles.button}>
+Set
+</button>
+</div>
 
 <h3 style={{ color: balance >= 0 ? "green" : "red" }}>
 Balance: ₹{balance}
 </h3>
 
-{/* Inputs */}
+{/* Add Expense */}
 <div style={styles.inputRow}>
 <input
 placeholder="Description"
@@ -44,30 +75,21 @@ style={styles.input}
 />
 
 <input
-placeholder="Amount (+/-)"
+placeholder="Amount"
 value={amount}
 onChange={(e) => setAmount(e.target.value)}
 style={styles.input}
 />
 </div>
 
-<button onClick={addTransaction} style={styles.button}>
-Add
+<button onClick={addExpense} style={styles.button}>
+Add Expense
 </button>
 
 {/* List */}
 <div style={{ marginTop: "20px" }}>
 {list.map((item, i) => (
-<div
-key={i}
-style={{
-...styles.item,
-borderLeft:
-item.amount > 0
-? "5px solid green"
-: "5px solid red",
-}}
->
+<div key={i} style={styles.item}>
 <span>{item.text}</span>
 <span>
 ₹{item.amount}
@@ -110,11 +132,11 @@ flex: 1,
 padding: "8px",
 borderRadius: "8px",
 border: "1px solid #ccc",
+marginRight: "5px",
 },
 button: {
 marginTop: "10px",
-padding: "10px",
-width: "100%",
+padding: "8px 12px",
 borderRadius: "8px",
 border: "none",
 background: "#007bff",
@@ -127,7 +149,8 @@ justifyContent: "space-between",
 padding: "10px",
 margin: "5px 0",
 borderRadius: "8px",
-background: "#f9f9f9",
+background: "#f8d7da",
+color: "black",
 },
 deleteBtn: {
 marginLeft: "10px",
@@ -137,4 +160,4 @@ cursor: "pointer",
 },
 };
 
-export default Day11;
+export default Day12;
