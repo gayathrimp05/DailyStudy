@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const ROWS = 10;
 const COLS = 5;
 
-const getColName = (col) => String.fromCharCode(65 + col); // A, B, C...
+const getColName = (col) => String.fromCharCode(65 + col);
 
 const Day23 = () => {
   const [grid, setGrid] = useState(
@@ -12,7 +12,9 @@ const Day23 = () => {
     )
   );
 
-  // Get cell value safely
+  const [activeCell, setActiveCell] = useState(null); // {row, col}
+
+  // Get value from reference like A1
   const getCellValue = (ref) => {
     const col = ref.charCodeAt(0) - 65;
     const row = parseInt(ref.slice(1)) - 1;
@@ -24,7 +26,7 @@ const Day23 = () => {
     return 0;
   };
 
-  // Evaluate formulas like =A1+B2
+  // Evaluate formulas
   const evaluate = (value) => {
     if (!value.startsWith("=")) return value;
 
@@ -50,7 +52,7 @@ const Day23 = () => {
       <h2 style={styles.title}>Mini Spreadsheet</h2>
 
       <div style={styles.table}>
-        {/* Header Row */}
+        {/* Header */}
         <div style={styles.row}>
           <div style={styles.headerCell}></div>
           {Array.from({ length: COLS }).map((_, col) => (
@@ -60,22 +62,33 @@ const Day23 = () => {
           ))}
         </div>
 
-        {/* Data Rows */}
+        {/* Rows */}
         {grid.map((rowData, row) => (
           <div key={row} style={styles.row}>
             <div style={styles.headerCell}>{row + 1}</div>
 
-            {rowData.map((cell, col) => (
-              <input
-                key={col}
-                value={cell}
-                onChange={(e) =>
-                  handleChange(row, col, e.target.value)
-                }
-                style={styles.cell}
-                placeholder={evaluate(cell)}
-              />
-            ))}
+            {rowData.map((cell, col) => {
+              const isActive =
+                activeCell?.row === row && activeCell?.col === col;
+
+              return (
+                <input
+                  key={col}
+                  value={isActive ? cell : evaluate(cell)}
+                  onFocus={() => setActiveCell({ row, col })}
+                  onBlur={() => setActiveCell(null)}
+                  onChange={(e) =>
+                    handleChange(row, col, e.target.value)
+                  }
+                  style={{
+                    ...styles.cell,
+                    border: isActive
+                      ? "2px solid #2563eb"
+                      : "1px solid #e2e8f0",
+                  }}
+                />
+              );
+            })}
           </div>
         ))}
       </div>
@@ -85,7 +98,7 @@ const Day23 = () => {
 
 export default Day23;
 
-// Styles (Spreadsheet-like UI)
+// Styles
 const styles = {
   container: {
     padding: "20px",
@@ -118,7 +131,6 @@ const styles = {
   cell: {
     width: "80px",
     height: "35px",
-    border: "1px solid #e2e8f0",
     padding: "5px",
     outline: "none",
   },
