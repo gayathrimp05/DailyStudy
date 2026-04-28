@@ -14,45 +14,77 @@ const Day24 = () => {
 
   const [activeCell, setActiveCell] = useState({ row: 0, col: 0 });
 
-  // getting cell reference like A1
-  const getCellRef = (row, col) => `${getColName(col)}${row + 1}`;
-
-  // geting numeric value from reference
+  // Get value from reference (A1)
   const getCellValue = (ref) => {
     const col = ref.charCodeAt(0) - 65;
     const row = parseInt(ref.slice(1)) - 1;
 
     if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-      const value = grid[row][col];
-      return isNaN(value) ? 0 : Number(value);
+      const val = grid[row][col];
+      const num = parseFloat(val);
+      return isNaN(num) ? 0 : num;
     }
     return 0;
   };
 
-  // Evaluationformulas
-  const evaluate = (value) => {
-    if (!value.startsWith("=")) return value;
+  const getRangeValues = (start, end) => {
+  const startCol = start.charCodeAt(0) - 65;
+  const startRow = parseInt(start.slice(1)) - 1;
 
-    try {
-      const expr = value
-        .substring(1)
-        .replace(/[A-Z][0-9]+/g, (match) => getCellValue(match));
+  const endCol = end.charCodeAt(0) - 65;
+  const endRow = parseInt(end.slice(1)) - 1;
 
-      return eval(expr);
-    } catch {
-      return "ERR";
+  let values = [];
+
+  for (let r = startRow; r <= endRow; r++) {
+    for (let c = startCol; c <= endCol; c++) {
+      const val = grid[r][c];
+      const num = parseFloat(val);
+      values.push(isNaN(num) ? 0 : num);
     }
-  };
+  }
 
-  // Updation of cell
+  return values;
+};
+  // Safer evaluation
+ const evaluate = (value) => {
+  if (!value || !value.startsWith("=")) return value;
+
+  try {
+    let expr = value.substring(1);
+
+    // 🔹 Handle SUM(A1:E1)
+    expr = expr.replace(/SUM\(([A-Z][0-9]+):([A-Z][0-9]+)\)/g,
+      (_, start, end) => {
+        const values = getRangeValues(start, end);
+        return values.reduce((sum, v) => sum + v, 0);
+      }
+    );
+
+    // 🔹 Handle normal refs like A1
+    expr = expr.replace(/[A-Z][0-9]+/g, (match) =>
+      getCellValue(match)
+    );
+
+    // Safety check
+    if (!/^[0-9+\-*/().\s]+$/.test(expr)) return "ERR";
+
+    return Function(`return (${expr})`)();
+  } catch {
+    return "ERR";
+  }
+};
+
   const updateCell = (row, col, value) => {
-    const newGrid = grid.map((r) => [...r]);
-    newGrid[row][col] = value;
-    setGrid(newGrid);
+    setGrid((prev) => {
+      const newGrid = prev.map((r) => [...r]);
+      newGrid[row][col] = value;
+      return newGrid;
+    });
   };
 
   const { row, col } = activeCell;
-  const currentValue = grid[row][col];
+  const currentValue = grid[row][col] || "";
 
   return (
     <div style={styles.container}>
@@ -61,7 +93,8 @@ const Day24 = () => {
       {/* Formula Bar */}
       <div style={styles.formulaBar}>
         <span style={styles.cellRef}>
-          {getCellRef(row, col)}
+          {getColName(col)}
+          {row + 1}
         </span>
 
         <input
@@ -70,11 +103,10 @@ const Day24 = () => {
           onChange={(e) =>
             updateCell(row, col, e.target.value)
           }
-          placeholder="Enter value or formula..."
         />
       </div>
 
-      {/* Table */}
+      {/* Grid */}
       <div style={styles.table}>
         {/* Header */}
         <div style={styles.row}>
@@ -93,12 +125,16 @@ const Day24 = () => {
 
             {rowData.map((cell, c) => {
               const isActive =
-                row === r && col === c;
+                activeCell.row === r && activeCell.col === c;
 
               return (
                 <input
                   key={c}
-                  value={isActive ? cell : evaluate(cell)}
+                  value={
+                    isActive
+                      ? cell
+                      : evaluate(cell)?.toString() || ""
+                  }
                   onFocus={() => setActiveCell({ row: r, col: c })}
                   onChange={(e) =>
                     updateCell(r, c, e.target.value)
@@ -124,7 +160,7 @@ const Day24 = () => {
 
 export default Day24;
 
-//Styling
+// Styles
 const styles = {
   container: {
     padding: "20px",
@@ -138,7 +174,6 @@ const styles = {
   },
   formulaBar: {
     display: "flex",
-    alignItems: "center",
     gap: "10px",
     marginBottom: "10px",
     background: "#fff",
@@ -180,5 +215,6 @@ const styles = {
     height: "35px",
     padding: "5px",
     outline: "none",
+    color: "#1e293b",
   },
 };
