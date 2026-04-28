@@ -73,7 +73,7 @@ const Day24 = () => {
   } catch {
     return "ERR";
   }
-};
+};// Update cell value
 
   const updateCell = (row, col, value) => {
     setGrid((prev) => {
