@@ -1,41 +1,50 @@
 import React, { useState } from "react";
 
-// Sample file system
-const initialData = [
-  {
-    id: 1,
-    name: "Documents",
-    type: "folder",
-    children: [
-      { id: 2, name: "Resume.pdf", type: "file" },
-      { id: 3, name: "Notes.txt", type: "file" },
-    ],
-  },
-  {
-    id: 4,
-    name: "Projects",
-    type: "folder",
-    children: [
-      {
-        id: 5,
-        name: "ReactApp",
-        type: "folder",
-        children: [
-          { id: 6, name: "App.js", type: "file" },
-          { id: 7, name: "index.css", type: "file" },
-        ],
-      },
-    ],
-  },
-  { id: 8, name: "image.png", type: "file" },
-];
-
 const Day25 = () => {
-  const [data] = useState(initialData);
+  const [data, setData] = useState([]);
   const [expanded, setExpanded] = useState({});
   const [selected, setSelected] = useState(null);
 
-  // Toggle folder open/close
+  // Open folder picker
+  const handleOpenFolder = async () => {
+    try {
+      const dirHandle = await window.showDirectoryPicker();
+      const tree = await readDirectory(dirHandle);
+      setData(tree);
+    } catch (err) {
+      console.log("Cancelled or not supported", err);
+    }
+  };
+
+  // Read directory recursively
+  const readDirectory = async (dirHandle) => {
+    const entries = [];
+
+    for await (const entry of dirHandle.values()) {
+      if (entry.kind === "file") {
+        entries.push({
+          id: entry.name + Math.random(),
+          name: entry.name,
+          type: "file",
+        });
+      }
+
+      if (entry.kind === "directory") {
+        const children = await readDirectory(entry);
+
+        entries.push({
+          id: entry.name + Math.random(),
+          name: entry.name,
+          type: "folder",
+          children,
+        });
+      }
+    }
+
+    return entries;
+  };
+
+  // Toggle folder
   const toggleFolder = (id) => {
     setExpanded((prev) => ({
       ...prev,
@@ -43,7 +52,7 @@ const Day25 = () => {
     }));
   };
 
-  // Recursive render
+  // Render tree recursively
   const renderTree = (nodes, level = 0) => {
     return nodes.map((node) => {
       const isFolder = node.type === "folder";
@@ -81,8 +90,18 @@ const Day25 = () => {
     <div style={styles.container}>
       <h2 style={styles.title}>File Explorer</h2>
 
+      <button onClick={handleOpenFolder} style={styles.button}>
+        Open Folder
+      </button>
+
       <div style={styles.sidebar}>
-        {renderTree(data)}
+        {data.length > 0 ? (
+          renderTree(data)
+        ) : (
+          <p style={{ color: "#6b7280" }}>
+            No folder selected
+          </p>
+        )}
       </div>
     </div>
   );
@@ -90,19 +109,26 @@ const Day25 = () => {
 
 export default Day25;
 
-//Styling
+// 🎨 Styles
 const styles = {
   container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
     padding: "20px",
     fontFamily: "Segoe UI, sans-serif",
     backgroundColor: "#f3f4f6",
+    minHeight: "100vh",
   },
   title: {
-    marginBottom: "15px",
+    marginBottom: "10px",
     color: "#1f2937",
+  },
+  button: {
+    marginBottom: "10px",
+    padding: "8px 12px",
+    backgroundColor: "#2563eb",
+    color: "#fff",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
   },
   sidebar: {
     width: "300px",
@@ -120,6 +146,7 @@ const styles = {
     alignItems: "center",
     gap: "6px",
     userSelect: "none",
+    color: "#111", // 👈 ensures visibility
   },
   icon: {
     width: "20px",
