@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
-const ROWS = 20;
-const COLS = 20;
+const ROWS = 40;
+const COLS = 40;
 
 const Day26 = () => {
   const [grid, setGrid] = useState(
@@ -12,29 +12,70 @@ const Day26 = () => {
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState("#2563eb");
-  const [mode, setMode] = useState("draw"); // draw | erase
+  const [mode, setMode] = useState("draw");
 
-  // Paint cell
+  const lastCellRef = useRef(null);
+
+  // Paint a single cell
   const paintCell = (row, col) => {
     setGrid((prev) => {
       const newGrid = prev.map((r) => [...r]);
-      newGrid[row][col] = mode === "erase" ? "#ffffff" : color;
+      newGrid[row][col] =
+        mode === "erase" ? "#ffffff" : color;
       return newGrid;
     });
   };
 
+  // 🔥 Line interpolation (fills gaps)
+  const drawLine = (r0, c0, r1, c1) => {
+    const dr = Math.abs(r1 - r0);
+    const dc = Math.abs(c1 - c0);
+    const sr = r0 < r1 ? 1 : -1;
+    const sc = c0 < c1 ? 1 : -1;
+
+    let err = (dr > dc ? dr : -dc) / 2;
+
+    let r = r0;
+    let c = c0;
+
+    while (true) {
+      paintCell(r, c);
+      if (r === r1 && c === c1) break;
+
+      const e2 = err;
+
+      if (e2 > -dr) {
+        err -= dc;
+        r += sr;
+      }
+      if (e2 < dc) {
+        err += dr;
+        c += sc;
+      }
+    }
+  };
+
   const handleMouseDown = (row, col) => {
     setIsDrawing(true);
+    lastCellRef.current = { row, col };
     paintCell(row, col);
   };
 
   const handleMouseEnter = (row, col) => {
     if (!isDrawing) return;
-    paintCell(row, col);
+
+    const prev = lastCellRef.current;
+
+    if (prev) {
+      drawLine(prev.row, prev.col, row, col);
+    }
+
+    lastCellRef.current = { row, col };
   };
 
   const handleMouseUp = () => {
     setIsDrawing(false);
+    lastCellRef.current = null;
   };
 
   const clearCanvas = () => {
@@ -47,7 +88,7 @@ const Day26 = () => {
 
   return (
     <div style={styles.container} onMouseUp={handleMouseUp}>
-      <h2 style={styles.title}>Grid Drawing Canvas</h2>
+      <h2 style={styles.title}>Smooth Drawing Canvas</h2>
 
       {/* Controls */}
       <div style={styles.controls}>
@@ -109,6 +150,7 @@ const Day26 = () => {
 
 export default Day26;
 
+// 🎨 Styles
 const styles = {
   container: {
     padding: "20px",
@@ -134,12 +176,12 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: `repeat(${COLS}, 20px)`,
+    gridTemplateColumns: `repeat(${COLS}, 12px)`,
     justifyContent: "center",
   },
   cell: {
-    width: "20px",
-    height: "20px",
-    border: "1px solid #e5e7eb",
+    width: "12px",
+    height: "12px",
+    border: "0.5px solid #f1f5f9",
   },
 };
