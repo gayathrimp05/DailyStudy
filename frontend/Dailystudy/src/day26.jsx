@@ -26,7 +26,6 @@ const Day26 = () => {
     });
   };
 
-  // 🔥 Line interpolation (fills gaps)
   const drawLine = (r0, c0, r1, c1) => {
     const dr = Math.abs(r1 - r0);
     const dc = Math.abs(c1 - c0);
@@ -150,7 +149,7 @@ const Day26 = () => {
 
 export default Day26;
 
-// 🎨 Styles
+
 const styles = {
   container: {
     padding: "20px",
