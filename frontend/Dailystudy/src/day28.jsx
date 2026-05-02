@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 
-const Day27 = () => {
+const Day28 = () => {
   const [messages, setMessages] = useState([
     { text: "Hi! Ask me something.", sender: "bot" },
   ]);
   const [input, setInput] = useState("");
 
-  // Random fallback responses
   const randomReplies = [
     "Interesting...",
     "Tell me more.",
@@ -16,7 +15,7 @@ const Day27 = () => {
     "Okay, go on.",
   ];
 
-  // Keyword-based responses
+
   const keywordReplies = {
     hello: "Hi there!",
     hi: "Hello!",
@@ -25,7 +24,6 @@ const Day27 = () => {
     bye: "Goodbye! Have a great day.",
   };
 
-  // Get bot reply
   const getBotReply = (userText) => {
     const lower = userText.toLowerCase();
 
@@ -35,7 +33,7 @@ const Day27 = () => {
       }
     }
 
-    // fallback random
+  
     const randomIndex = Math.floor(Math.random() * randomReplies.length);
     return randomReplies[randomIndex];
   };
@@ -88,9 +86,8 @@ const Day27 = () => {
   );
 };
 
-export default Day27;
+export default Day28;
 
-// Styles
 const styles = {
   container: {
     maxWidth: "500px",
