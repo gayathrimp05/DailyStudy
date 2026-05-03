@@ -15,7 +15,6 @@ const Day29 = () => {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
 
-  // Pick random sentence
   const startTest = () => {
     const random =
       sentences[Math.floor(Math.random() * sentences.length)];
@@ -26,7 +25,6 @@ const Day29 = () => {
     setIsRunning(true);
   };
 
-  // Timer
   useEffect(() => {
     let interval;
 
@@ -39,7 +37,7 @@ const Day29 = () => {
     return () => clearInterval(interval);
   }, [isRunning, startTime]);
 
-  // Handle typing
+  
   const handleChange = (e) => {
     const value = e.target.value;
 
@@ -52,14 +50,14 @@ const Day29 = () => {
     }
   };
 
-  // Calculate WPM
+  
   const calculateWPM = () => {
     if (time === 0) return 0;
     const words = text.trim().split(" ").length;
     return Math.round((words / time) * 60);
   };
 
-  // Accuracy
+
   const calculateAccuracy = () => {
     let correct = 0;
     for (let i = 0; i < text.length; i++) {
