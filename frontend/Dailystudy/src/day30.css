@@ -1,0 +1,88 @@
+body {
+  background: #0a0a0f;
+  color: white;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+.title {
+  color: #00fff2;
+  text-shadow: 0 0 10px #00fff2;
+}
+
+.score {
+  margin-bottom: 10px;
+}
+
+/* GRID */
+.board {
+  display: grid;
+  grid-template-columns: repeat(20, 22px);
+  gap: 4px;
+  justify-content: center;
+
+  transform: perspective(600px) rotateX(25deg);
+}
+
+.cell {
+  width: 22px;
+  height: 22px;
+  background: #111;
+  border-radius: 6px;
+
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,0.05),
+    inset -2px -2px 6px rgba(0,0,0,0.8);
+
+  transition: all 0.1s linear;
+}
+
+.snake {
+  background: linear-gradient(145deg, #00ffcc, #00ccaa);
+
+  box-shadow:
+    0 0 6px #00ffcc,
+    0 0 12px #00ffcc,
+    0 0 20px #00ffcc,
+    inset 2px 2px 6px rgba(255,255,255,0.4),
+    inset -3px -3px 6px rgba(0,0,0,0.6);
+}
+
+
+.snake-head {
+  box-shadow:
+    0 0 15px #00fff2,
+    0 0 30px #00fff2,
+    0 0 45px #00fff2;
+}
+
+.food {
+  background: radial-gradient(circle, #ff4d4d, #b30000);
+
+  box-shadow:
+    0 0 8px #ff4d4d,
+    0 0 18px #ff0000;
+
+  animation: pulse 0.8s infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2);
+  }
+}
+
+.game-over {
+  margin-top: 20px;
+}
+
+button {
+  padding: 8px 16px;
+  background: #00fff2;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
