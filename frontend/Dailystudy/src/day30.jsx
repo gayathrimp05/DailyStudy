@@ -17,7 +17,7 @@ const getRandomFood = (snake) => {
   }
   return newFood;
 };
-
+//change it
 export default function Day30() {
   const [snake, setSnake] = useState([[10, 10]]);
   const [direction, setDirection] = useState([0, 1]);
@@ -25,7 +25,6 @@ export default function Day30() {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
 
-  // 🎮 Keyboard controls
   useEffect(() => {
     const handleKey = (e) => {
       switch (e.key) {
@@ -58,7 +57,7 @@ export default function Day30() {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  // 🐍 Game loop
+
   useEffect(() => {
     if (gameOver) return;
 
@@ -69,7 +68,7 @@ export default function Day30() {
           prevSnake[0][1] + direction[1],
         ];
 
-        // ❌ Wall collision
+        // Wall collision
         if (
           newHead[0] < 0 ||
           newHead[0] >= GRID_SIZE ||
@@ -80,7 +79,7 @@ export default function Day30() {
           return prevSnake;
         }
 
-        // ❌ Self collision
+        //Self collision
         for (let part of prevSnake) {
           if (part[0] === newHead[0] && part[1] === newHead[1]) {
             setGameOver(true);
@@ -90,7 +89,7 @@ export default function Day30() {
 
         let newSnake = [newHead, ...prevSnake];
 
-        // 🍎 Food eaten
+        //Food eaten
         if (
           newHead[0] === food[0] &&
           newHead[1] === food[1]
@@ -108,7 +107,7 @@ export default function Day30() {
     return () => clearInterval(interval);
   }, [direction, food, gameOver]);
 
-  // 🔄 Restart
+
   const restartGame = () => {
     setSnake([[10, 10]]);
     setDirection([0, 1]);
@@ -117,7 +116,7 @@ export default function Day30() {
     setScore(0);
   };
 
-  // 🧱 Grid render
+
   const grid = [];
   for (let i = 0; i < GRID_SIZE; i++) {
     for (let j = 0; j < GRID_SIZE; j++) {
